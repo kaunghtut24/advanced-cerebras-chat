@@ -307,11 +307,24 @@ def list_chat_sessions():
                 first_msg = next((msg for msg in history if msg['role'] == 'user'), None)
                 title = first_msg['content'][:50] + '...' if first_msg else 'New Chat'
 
+            # Extract all message content for search indexing
+            # Combine all user and assistant messages (exclude system messages)
+            searchable_content = []
+            for msg in history:
+                if msg['role'] in ['user', 'assistant']:
+                    content = msg.get('content', '')
+                    if content:
+                        searchable_content.append(content)
+
+            # Join all content with spaces for searching
+            full_content = ' '.join(searchable_content)
+
             sessions.append({
                 'id': session_id,
                 'timestamp': session_id.split('_')[0],
                 'title': title,
-                'message_count': len(history)
+                'message_count': len(history),
+                'content': full_content  # Add full content for searching
             })
         except:
             continue

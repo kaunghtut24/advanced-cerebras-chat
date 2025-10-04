@@ -132,6 +132,7 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
                 sessionDiv.className = `session-item ${session.id === currentSessionId ? 'active' : ''}`;
                 sessionDiv.dataset.sessionId = session.id;
                 sessionDiv.dataset.sessionTitle = session.title.toLowerCase();
+                sessionDiv.dataset.sessionContent = (session.content || '').toLowerCase();
                 sessionDiv.dataset.messageCount = session.message_count;
 
                 sessionDiv.innerHTML = `
@@ -168,11 +169,29 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
 
         sessionItems.forEach(item => {
             const title = item.dataset.sessionTitle || '';
-            const matches = title.includes(searchQuery);
+            const content = item.dataset.sessionContent || '';
+
+            // Search in both title and message content
+            const matchesTitle = title.includes(searchQuery);
+            const matchesContent = content.includes(searchQuery);
+            const matches = matchesTitle || matchesContent;
 
             if (matches) {
                 item.classList.remove('hidden');
                 visibleCount++;
+
+                // Update session info to show if match is in content
+                const sessionInfo = item.querySelector('.session-info');
+                if (sessionInfo) {
+                    const messageCount = item.dataset.messageCount || '0';
+                    if (matchesContent && !matchesTitle && searchQuery) {
+                        // Show that match was found in messages
+                        sessionInfo.innerHTML = `${messageCount} messages <span class="match-indicator">• Match in messages</span>`;
+                    } else {
+                        // Normal display
+                        sessionInfo.textContent = `${messageCount} messages`;
+                    }
+                }
             } else {
                 item.classList.add('hidden');
             }
