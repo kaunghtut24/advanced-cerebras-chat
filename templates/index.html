@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerebras Chat Interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="settings-container" id="settings-panel">
+        <div class="settings-header">
+            <h2>Settings</h2>
+        </div>
+        <div class="settings-body">
+            <form id="settings-form">
+                <div class="form-group">
+                    <label for="model">Model:</label>
+                    <select id="model" name="model" required>
+                        <optgroup label="Production Models" id="production-models">
+                            <!-- Production models will be loaded here -->
+                        </optgroup>
+                        <optgroup label="Preview Models" id="preview-models">
+                            <!-- Preview models will be loaded here -->
+                        </optgroup>
+                    </select>
+                    <div class="model-info" id="model-info">
+                        <!-- Model info will be shown here -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="system-prompt">System Prompt:</label>
+                    <textarea id="system-prompt" name="system_prompt" rows="10" required></textarea>
+                    <p class="help-text">
+                        Customize how the AI responds. The default prompt includes comprehensive instructions for handling RAG (knowledge base) and web search results.
+                        <br><strong>Tip:</strong> Click "Reset to Default" to restore the comprehensive default prompt with best practices.
+                    </p>
+                    <button type="button" id="reset-system-prompt" class="secondary-button">🔄 Reset to Default</button>
+                </div>
+                <div class="form-group">
+                    <label for="temperature">Temperature:</label>
+                    <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.1">
+                    <span id="temperature-value">0.7</span>
+                </div>
+                <div class="form-group">
+                    <label for="max-tokens">Max Tokens:</label>
+                    <input type="number" id="max-tokens" name="max_tokens" min="1" max="2048" required>
+                </div>
+                <div class="form-group">
+                    <h3>RAG Settings</h3>
+                    <label>
+                        <input type="checkbox" id="rag-toggle"> Enable RAG
+                    </label>
+                    <label for="kb-select">Knowledge Base:</label>
+                    <select id="kb-select">
+                        <option value="">None (No RAG)</option>
+                    </select>
+                    <button type="button" id="manage-kb-button">Manage Knowledge Bases</button>
+                </div>
+                <div class="form-group">
+                    <h3>Web Search Settings</h3>
+                    <label>
+                        <input type="checkbox" id="web-search-toggle"> Enable Web Search
+                    </label>
+                    <p class="help-text">Automatically search the web for up-to-date information</p>
+                </div>
+            </form>
+        </div>
+        <div class="settings-footer">
+            <button type="button" id="reset-settings" class="secondary-button">Reset All</button>
+            <button type="submit" form="settings-form" class="primary-button">Save Settings</button>
+        </div>
+    </div>
+    <div class="sessions-panel" id="sessions-panel">
+        <h2>Chat Sessions</h2>
+        <div class="sessions-list" id="sessions-list">
+            <!-- Sessions will be listed here -->
+        </div>
+        <div class="sessions-actions">
+            <button id="new-chat">New Chat</button>
+            <button id="import-chat">Import Chat</button>
+            <input type="file" id="import-file" accept=".json" style="display: none">
+        </div>
+    </div>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="header-left">
+                <button id="toggle-sessions">☰</button>
+                <h1>Cerebras Chat</h1>
+            </div>
+            <div class="header-buttons">
+                <button id="export-chat">Export</button>
+                <button id="toggle-settings">⚙️ Settings</button>
+                <button id="clear-button">Clear Chat</button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be displayed here -->
+        </div>
+        <div class="chat-input-wrapper">
+            <!-- Quick Toggle Buttons -->
+            <div class="quick-toggles">
+                <div class="toggle-group" id="rag-toggle-group" style="display: none;">
+                    <button class="quick-toggle-btn" id="quick-rag-toggle" title="Toggle RAG (Knowledge Base)">
+                        <span class="toggle-icon">📚</span>
+                        <span class="toggle-label">RAG</span>
+                        <span class="toggle-status" id="rag-status-indicator">OFF</span>
+                    </button>
+                    <select class="quick-kb-select" id="quick-kb-select" title="Select Knowledge Base">
+                        <option value="">Select KB...</option>
+                    </select>
+                </div>
+                <div class="toggle-group" id="web-search-toggle-group" style="display: none;">
+                    <button class="quick-toggle-btn" id="quick-web-search-toggle" title="Toggle Web Search">
+                        <span class="toggle-icon">🌐</span>
+                        <span class="toggle-label">Web Search</span>
+                        <span class="toggle-status" id="web-search-status-indicator">OFF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <textarea id="user-input" placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)" rows="1"></textarea>
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+    <!-- Knowledge Base Management Modal -->
+    <div class="modal" id="kb-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-kb-modal">&times;</span>
+            <h2>Manage Knowledge Bases</h2>
+
+            <div class="kb-section">
+                <h3>Create New Knowledge Base</h3>
+                <input type="text" id="new-kb-name" placeholder="Enter knowledge base name">
+                <button id="create-kb-button">Create</button>
+            </div>
+
+            <div class="kb-section">
+                <h3>Upload Documents</h3>
+                <select id="upload-kb-select">
+                    <option value="">Select knowledge base...</option>
+                </select>
+                <input type="file" id="file-upload" accept=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.txt,.md,.html,.jpg,.jpeg,.png,.gif" multiple>
+                <button id="upload-files-button">Upload Files</button>
+                <div id="upload-status"></div>
+            </div>
+
+            <div class="kb-section">
+                <h3>Existing Knowledge Bases</h3>
+                <div id="kb-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

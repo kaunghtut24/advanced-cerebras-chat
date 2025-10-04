@@ -1,0 +1,89 @@
+version: '3.8'
+
+# Docker Compose configuration optimized for ARM64 devices
+# Use this for NVIDIA Jetson, Raspberry Pi, and other ARM-based edge devices
+
+services:
+  cerebras-chat:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.arm64
+    container_name: cerebras-chat-arm64
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      # Flask Configuration
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      - FLASK_DEBUG=false
+      
+      # API Keys (set these in .env file)
+      - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
+      - EXA_API_KEY=${EXA_API_KEY:-}
+      - BRAVE_API_KEY=${BRAVE_API_KEY:-}
+      
+      # RAG Configuration (optimized for ARM)
+      - RAG_ENABLED=${RAG_ENABLED:-true}
+      - RAG_TOP_K=${RAG_TOP_K:-3}
+      - RAG_SCORE_THRESHOLD=${RAG_SCORE_THRESHOLD:-0.3}
+      - CHUNK_SIZE=${CHUNK_SIZE:-500}
+      - CHUNK_OVERLAP=${CHUNK_OVERLAP:-50}
+      
+      # Qdrant Configuration
+      - QDRANT_IN_MEMORY=${QDRANT_IN_MEMORY:-false}
+      - QDRANT_PATH=/app/qdrant_storage
+      
+      # Web Search Configuration
+      - WEB_SEARCH_ENABLED=${WEB_SEARCH_ENABLED:-true}
+      - WEB_SEARCH_MAX_RESULTS=${WEB_SEARCH_MAX_RESULTS:-5}
+      - WEB_SEARCH_DIVERSITY_MULTIPLIER=${WEB_SEARCH_DIVERSITY_MULTIPLIER:-3}
+      - WEB_SEARCH_MAX_PER_DOMAIN=${WEB_SEARCH_MAX_PER_DOMAIN:-2}
+      
+      # Rate Limiting (reduced for edge devices)
+      - RATE_LIMIT_CHAT=${RATE_LIMIT_CHAT:-20 per minute}
+      - RATE_LIMIT_UPLOAD=${RATE_LIMIT_UPLOAD:-5 per minute}
+      
+      # Conversation History (reduced for memory efficiency)
+      - MAX_HISTORY_LENGTH=${MAX_HISTORY_LENGTH:-10}
+    
+    volumes:
+      # Persistent storage for Qdrant vector database
+      - qdrant_data:/app/qdrant_storage
+
+      # Persistent storage for chat sessions (history + settings)
+      - chat_sessions:/app/chat_sessions
+
+      # Persistent storage for uploaded files
+      - uploads:/app/uploads
+    
+    networks:
+      - cerebras-network
+    
+    # Resource limits for ARM devices
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  qdrant_data:
+    driver: local
+  chat_sessions:
+    driver: local
+  uploads:
+    driver: local
+
+networks:
+  cerebras-network:
+    driver: bridge
+

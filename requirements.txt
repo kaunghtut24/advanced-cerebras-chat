@@ -1,0 +1,25 @@
+flask==3.0.0
+flask-cors==4.0.0
+flask-limiter==3.5.0
+limits==3.6.0
+cerebras-cloud-sdk
+python-dotenv==1.0.0
+
+# File parsing and processing
+markitdown==0.0.1a2
+pillow>=10.0.0
+
+# Embeddings and vector operations
+sentence-transformers>=2.2.0
+torch>=2.0.0
+
+# Vector database
+qdrant-client>=1.7.0
+
+# Additional utilities
+numpy>=1.24.0
+tqdm>=4.65.0
+
+# Web Search
+exa-py>=1.0.0
+requests>=2.31.0
