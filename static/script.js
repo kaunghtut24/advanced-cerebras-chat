@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportChatButton = document.getElementById('export-chat');
     const importChatButton = document.getElementById('import-chat');
     const importFileInput = document.getElementById('import-file');
+    const sessionsSearchInput = document.getElementById('sessions-search-input');
+    const clearSearchButton = document.getElementById('clear-search');
 
     let currentSessionId = null;
     let currentKnowledgeBase = null;
@@ -129,6 +131,8 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
                 const sessionDiv = document.createElement('div');
                 sessionDiv.className = `session-item ${session.id === currentSessionId ? 'active' : ''}`;
                 sessionDiv.dataset.sessionId = session.id;
+                sessionDiv.dataset.sessionTitle = session.title.toLowerCase();
+                sessionDiv.dataset.messageCount = session.message_count;
 
                 sessionDiv.innerHTML = `
                     <div class="session-content">
@@ -148,8 +152,52 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
 
                 sessionsList.appendChild(sessionDiv);
             });
+
+            // Apply current search filter if any
+            filterSessions();
         } catch (error) {
             console.error('Error loading sessions:', error);
+        }
+    }
+
+    // Filter sessions based on search query
+    function filterSessions() {
+        const searchQuery = sessionsSearchInput.value.toLowerCase().trim();
+        const sessionItems = sessionsList.querySelectorAll('.session-item');
+        let visibleCount = 0;
+
+        sessionItems.forEach(item => {
+            const title = item.dataset.sessionTitle || '';
+            const matches = title.includes(searchQuery);
+
+            if (matches) {
+                item.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+
+        // Show/hide "no results" message
+        let noResultsDiv = sessionsList.querySelector('.no-results');
+        if (visibleCount === 0 && searchQuery) {
+            if (!noResultsDiv) {
+                noResultsDiv = document.createElement('div');
+                noResultsDiv.className = 'no-results';
+                noResultsDiv.textContent = `No sessions found for "${sessionsSearchInput.value}"`;
+                sessionsList.appendChild(noResultsDiv);
+            } else {
+                noResultsDiv.textContent = `No sessions found for "${sessionsSearchInput.value}"`;
+            }
+        } else if (noResultsDiv) {
+            noResultsDiv.remove();
+        }
+
+        // Show/hide clear button
+        if (searchQuery) {
+            clearSearchButton.classList.add('visible');
+        } else {
+            clearSearchButton.classList.remove('visible');
         }
     }
 
@@ -1325,6 +1373,31 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
             const webSearchToggle = document.getElementById('web-search-toggle');
             if (webSearchToggle && webSearchToggle.parentElement) {
                 webSearchToggle.parentElement.style.display = 'none';
+            }
+        }
+    });
+
+    // Sessions search functionality
+    sessionsSearchInput.addEventListener('input', () => {
+        filterSessions();
+    });
+
+    // Clear search button
+    clearSearchButton.addEventListener('click', () => {
+        sessionsSearchInput.value = '';
+        filterSessions();
+        sessionsSearchInput.focus();
+    });
+
+    // Allow Enter key to focus first result
+    sessionsSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const firstVisible = sessionsList.querySelector('.session-item:not(.hidden)');
+            if (firstVisible) {
+                const contentArea = firstVisible.querySelector('.session-content');
+                if (contentArea) {
+                    contentArea.click();
+                }
             }
         }
     });
