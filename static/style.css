@@ -83,32 +83,32 @@
     }
 
     .session-actions {
-        display: none;
-        gap: 3px;
-        margin-top: 6px;
+        display: flex;  /* Always visible on mobile */
+        gap: 5px;
+        margin-top: 8px;
         flex-wrap: wrap;
     }
 
-    .session-item:hover .session-actions {
-        display: flex;
-    }
-
     .session-action-btn {
-        padding: 2px 6px;
-        font-size: 10px;
+        padding: 6px 10px;  /* Larger touch target for mobile */
+        font-size: 11px;
         border: none;
-        border-radius: 3px;
+        border-radius: 4px;
         cursor: pointer;
         transition: all 0.2s;
         background-color: #e0e0e0;
         color: #333;
         white-space: nowrap;
         flex: 0 0 auto;
+        min-height: 32px;  /* Minimum touch target size */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .session-action-btn:hover {
+    .session-action-btn:active {  /* Use :active instead of :hover for mobile */
         background-color: #d0d0d0;
-        transform: scale(1.05);
+        transform: scale(0.95);
     }
 
     .session-action-btn.edit {
@@ -116,7 +116,7 @@
         color: white;
     }
 
-    .session-action-btn.edit:hover {
+    .session-action-btn.edit:active {
         background-color: #1976D2;
     }
 
@@ -125,7 +125,7 @@
         color: white;
     }
 
-    .session-action-btn.delete:hover {
+    .session-action-btn.delete:active {
         background-color: #d32f2f;
     }
 
@@ -134,7 +134,7 @@
         color: white;
     }
 
-    .session-action-btn.export:hover {
+    .session-action-btn.export:active {
         background-color: #45a049;
     }
 
@@ -810,6 +810,63 @@
         color: #666;
     }
 
+    /* Desktop: Hide action buttons by default, show on hover */
+    .session-actions {
+        display: none;
+        gap: 3px;
+        margin-top: 6px;
+        flex-wrap: wrap;
+    }
+
+    .session-item:hover .session-actions {
+        display: flex;
+    }
+
+    .session-action-btn {
+        padding: 2px 6px;
+        font-size: 10px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #e0e0e0;
+        color: #333;
+        white-space: nowrap;
+        flex: 0 0 auto;
+    }
+
+    .session-action-btn:hover {
+        background-color: #d0d0d0;
+        transform: scale(1.05);
+    }
+
+    .session-action-btn.edit {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .session-action-btn.edit:hover {
+        background-color: #1976D2;
+    }
+
+    .session-action-btn.delete {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .session-action-btn.delete:hover {
+        background-color: #d32f2f;
+    }
+
+    .session-action-btn.export {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .session-action-btn.export:hover {
+        background-color: #45a049;
+    }
+
     .sessions-actions {
         padding: 15px;
         border-top: 1px solid #e0e0e0;
@@ -1396,6 +1453,35 @@
     .quick-kb-select {
         max-width: 100px;
         font-size: 12px;
+    }
+
+    /* Mobile-specific thinking process styles */
+    .thinking-container {
+        margin: 8px 0;
+    }
+
+    .thinking-header {
+        padding: 14px 12px;  /* Larger touch target */
+        gap: 8px;
+    }
+
+    .thinking-icon {
+        font-size: 22px;  /* Larger for visibility */
+    }
+
+    .thinking-title {
+        font-size: 13px;
+    }
+
+    .thinking-toggle {
+        font-size: 14px;  /* Larger for visibility */
+    }
+
+    .thinking-content {
+        padding: 12px;
+        font-size: 12px;
+        line-height: 1.5;
+        max-height: 300px;  /* Smaller on mobile to save space */
     }
 }
 
