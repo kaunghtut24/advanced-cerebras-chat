@@ -228,7 +228,7 @@ DEFAULT_SETTINGS = {
     "model": "llama-4-scout-17b-16e-instruct",
     "system_prompt": DEFAULT_SYSTEM_PROMPT,
     "temperature": 0.7,
-    "max_tokens": 1000
+    "max_tokens": 8192  # Increased from 1000 to allow longer responses
 }
 
 # Settings file path

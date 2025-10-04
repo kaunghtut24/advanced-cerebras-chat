@@ -43,7 +43,12 @@
                 </div>
                 <div class="form-group">
                     <label for="max-tokens">Max Tokens:</label>
-                    <input type="number" id="max-tokens" name="max_tokens" min="1" max="2048" required>
+                    <input type="number" id="max-tokens" name="max_tokens" min="100" max="32768" step="100" required>
+                    <p class="help-text">
+                        Maximum number of tokens to generate in the response. Higher values allow longer responses but may take more time.
+                        <br><strong>Recommended:</strong> 8192 for detailed responses, 16384 for very long responses, 32768 for maximum length.
+                        <br><strong>Note:</strong> If responses are being cut off, increase this value.
+                    </p>
                 </div>
                 <div class="form-group">
                     <h3>RAG Settings</h3>

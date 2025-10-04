@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetSystemPrompt = document.getElementById('reset-system-prompt');
     const temperatureInput = document.getElementById('temperature');
     const temperatureValue = document.getElementById('temperature-value');
+    const maxTokensInput = document.getElementById('max-tokens');
     const systemPromptInput = document.getElementById('system-prompt');
 
     // Sessions elements
@@ -842,6 +843,9 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
             document.getElementById('max-tokens').value = settings.max_tokens;
             temperatureValue.textContent = settings.temperature;
 
+            // Trigger max tokens input event to update help text
+            maxTokensInput.dispatchEvent(new Event('input'));
+
             // Update model info for the current model
             updateModelInfo(document.getElementById('model'));
         } catch (error) {
@@ -933,6 +937,34 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
     // Update temperature value display
     temperatureInput.addEventListener('input', (e) => {
         temperatureValue.textContent = e.target.value;
+    });
+
+    // Update max tokens display in help text when changed
+    maxTokensInput.addEventListener('input', (e) => {
+        const value = parseInt(e.target.value);
+        const helpText = e.target.nextElementSibling;
+        if (helpText && helpText.classList.contains('help-text')) {
+            let recommendation = '';
+            if (value < 2048) {
+                recommendation = 'Short responses';
+            } else if (value < 8192) {
+                recommendation = 'Medium responses';
+            } else if (value < 16384) {
+                recommendation = 'Detailed responses';
+            } else if (value < 24576) {
+                recommendation = 'Very long responses';
+            } else {
+                recommendation = 'Maximum length responses';
+            }
+
+            // Update the help text to show current value
+            helpText.innerHTML = `
+                <strong>Current: ${value.toLocaleString()} tokens</strong> (${recommendation})
+                <br>Maximum number of tokens to generate in the response. Higher values allow longer responses but may take more time.
+                <br><strong>Recommended:</strong> 8192 for detailed responses, 16384 for very long responses, 32768 for maximum length.
+                <br><strong>Note:</strong> If responses are being cut off, increase this value.
+            `;
+        }
     });
 
     // Toggle settings panel
