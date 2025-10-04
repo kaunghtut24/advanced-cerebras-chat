@@ -578,11 +578,16 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
 
             const data = await response.json();
 
+            // Debug: Log the response data
+            console.log('Response data:', data);
+            console.log('Thinking content:', data.thinking);
+
             // Remove loading animation
             removeLoadingAnimation();
 
             // Show thinking process if available
             if (data.thinking) {
+                console.log('Displaying thinking process:', data.thinking);
                 const thinkingDiv = document.createElement('div');
                 thinkingDiv.className = 'message-container bot-message-container';
                 thinkingDiv.innerHTML = `

@@ -579,13 +579,26 @@ RESPONSE STRUCTURE:
 
             # Extract the response content and thinking process
             message = chat_completion.choices[0].message
-            bot_response = message.content
+            full_content = message.content
 
-            # Check if the model provided reasoning/thinking content
+            # Extract thinking content from <think> tags if present
             thinking_content = None
-            if hasattr(message, 'reasoning_content') and message.reasoning_content:
-                thinking_content = message.reasoning_content
-                logging.info(f"✓ Thinking content available ({len(thinking_content)} chars)")
+            bot_response = full_content
+
+            # Check if content contains <think> tags
+            import re
+            think_pattern = r'<think>(.*?)</think>'
+            think_match = re.search(think_pattern, full_content, re.DOTALL)
+
+            if think_match:
+                # Extract thinking content
+                thinking_content = think_match.group(1).strip()
+                # Remove <think> tags from the response
+                bot_response = re.sub(think_pattern, '', full_content, flags=re.DOTALL).strip()
+                logging.info(f"✓ Thinking content extracted from <think> tags ({len(thinking_content)} chars)")
+                print(f"\n✓ Thinking content extracted: {len(thinking_content)} chars\n")
+            else:
+                logging.info("No <think> tags found in response")
 
             # Add bot response to conversation history
             conversation_history.append({
