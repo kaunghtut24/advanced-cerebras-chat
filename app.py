@@ -576,16 +576,23 @@ RESPONSE STRUCTURE:
                 temperature=current_settings["temperature"],
                 max_tokens=current_settings["max_tokens"]
             )
-            
-            # Extract the response content
-            bot_response = chat_completion.choices[0].message.content
-            
+
+            # Extract the response content and thinking process
+            message = chat_completion.choices[0].message
+            bot_response = message.content
+
+            # Check if the model provided reasoning/thinking content
+            thinking_content = None
+            if hasattr(message, 'reasoning_content') and message.reasoning_content:
+                thinking_content = message.reasoning_content
+                logging.info(f"✓ Thinking content available ({len(thinking_content)} chars)")
+
             # Add bot response to conversation history
             conversation_history.append({
                 "role": "assistant",
                 "content": bot_response
             })
-            
+
             # Save updated conversation history
             active_conversations[session_id] = conversation_history
             save_chat_history(session_id, conversation_history)
@@ -595,6 +602,10 @@ RESPONSE STRUCTURE:
                 "response": bot_response,
                 "history": conversation_history
             }
+
+            # Include thinking content if available
+            if thinking_content:
+                response_data["thinking"] = thinking_content
 
             # Include RAG sources if available
             if rag_sources:

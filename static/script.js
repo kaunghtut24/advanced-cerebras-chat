@@ -519,6 +519,23 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
         }
     }
 
+    // Toggle thinking process visibility
+    window.toggleThinking = function(header) {
+        const container = header.parentElement;
+        const content = container.querySelector('.thinking-content');
+        const toggle = header.querySelector('.thinking-toggle');
+
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            toggle.textContent = '▲';
+            header.classList.add('expanded');
+        } else {
+            content.style.display = 'none';
+            toggle.textContent = '▼';
+            header.classList.remove('expanded');
+        }
+    }
+
     async function sendMessage() {
         const message = userInput.value.trim();
         if (!message || !currentSessionId) return;
@@ -563,6 +580,26 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
 
             // Remove loading animation
             removeLoadingAnimation();
+
+            // Show thinking process if available
+            if (data.thinking) {
+                const thinkingDiv = document.createElement('div');
+                thinkingDiv.className = 'message-container bot-message-container';
+                thinkingDiv.innerHTML = `
+                    <div class="thinking-container">
+                        <div class="thinking-header" onclick="toggleThinking(this)">
+                            <span class="thinking-icon">🧠</span>
+                            <span class="thinking-title">Thinking Process</span>
+                            <span class="thinking-toggle">▼</span>
+                        </div>
+                        <div class="thinking-content" style="display: none;">
+                            ${escapeHtml(data.thinking).replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(thinkingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
 
             // Show bot response
             appendMessage(data.response, false);
