@@ -9,6 +9,22 @@ from pathlib import Path
 import hashlib
 import uuid
 
+# Fix SSL certificate issues by setting the certificate bundle path
+certifi_path = None
+try:
+    import certifi
+    certifi_path = certifi.where()
+    os.environ['REQUESTS_CA_BUNDLE'] = certifi_path
+    os.environ['SSL_CERT_FILE'] = certifi_path
+    logging.info(f"Set SSL certificate bundle to: {certifi_path}")
+except ImportError:
+    logging.warning("certifi not available, SSL certificate issues may occur")
+
+# Workaround for PostgreSQL SSL certificate conflict
+# Set HF_HUB_DISABLE_SSL to bypass SSL verification for Hugging Face downloads
+os.environ['HF_HUB_DISABLE_SSL'] = '1'
+logging.info("Disabled SSL verification for Hugging Face Hub downloads")
+
 # Embedding and vector database
 try:
     from sentence_transformers import SentenceTransformer
@@ -300,13 +316,12 @@ class RAGService:
             return []
 
         try:
-            # Search with a lower threshold to get more results
-            # We'll use 0.3 instead of the configured threshold for better recall
+            # Search with the configured threshold
             results = self.qdrant_client.search(
                 collection_name=kb_name,
                 query_vector=query_embedding,
                 limit=top_k,
-                score_threshold=0.3  # Lower threshold for better recall
+                score_threshold=self.score_threshold
             )
 
             logging.info(f"Qdrant search returned {len(results)} results (threshold: 0.3)")

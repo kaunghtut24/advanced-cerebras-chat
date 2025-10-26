@@ -14,30 +14,30 @@ import logging
 try:
     from dotenv import load_dotenv
     load_dotenv()
-    print("Environment variables loaded from .env file")
+    logging.info("Environment variables loaded from .env file")
 except ImportError:
-    print("python-dotenv not installed. Install with: pip install python-dotenv")
+    logging.error("python-dotenv not installed. Install with: pip install python-dotenv")
 except Exception as e:
-    print(f"Could not load .env file: {e}")
+    logging.error(f"Could not load .env file: {e}")
 
 # Import RAG services
 try:
     from rag_service import rag_service
     from file_handler import file_handler
     RAG_AVAILABLE = True
-    print(f"RAG service initialized: {'Available' if rag_service.is_available() else 'Not available'}")
+    logging.info(f"RAG service initialized: {'Available' if rag_service.is_available() else 'Not available'}")
 except ImportError as e:
     RAG_AVAILABLE = False
-    print(f"RAG services not available: {e}")
+    logging.error(f"RAG services not available: {e}")
 
 # Import Web Search service
 try:
     from web_search_service import web_search_service
     WEB_SEARCH_AVAILABLE = True
-    print(f"Web search initialized: {'Available' if web_search_service.is_available() else 'Not available'}")
+    logging.info(f"Web search initialized: {'Available' if web_search_service.is_available() else 'Not available'}")
 except ImportError as e:
     WEB_SEARCH_AVAILABLE = False
-    print(f"Web search not available: {e}")
+    logging.error(f"Web search not available: {e}")
 
 # Configure logging
 log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
@@ -64,13 +64,24 @@ if not os.path.exists(CHAT_HISTORY_DIR):
 app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))
 
 # Configure CORS with more specific settings
-CORS(app, resources={
-    r"/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "DELETE"],
-        "allow_headers": ["Content-Type"]
-    }
-})
+allowed_origins = os.environ.get('ALLOWED_ORIGINS', '*')
+if allowed_origins != '*' and allowed_origins:
+    origins_list = [origin.strip() for origin in allowed_origins.split(',')]
+    CORS(app, resources={
+        r"/*": {
+            "origins": origins_list,
+            "methods": ["GET", "POST", "DELETE"],
+            "allow_headers": ["Content-Type"]
+        }
+    })
+else:
+    CORS(app, resources={
+        r"/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "DELETE"],
+            "allow_headers": ["Content-Type"]
+        }
+    })
 
 # Configure rate limiting
 default_limits_str = os.environ.get('RATE_LIMIT_DEFAULT', '200 per day, 50 per hour')
@@ -261,11 +272,11 @@ try:
     if api_key:
         client = Cerebras(api_key=api_key)
         cerebras_available = True
-        print("Cerebras SDK initialized successfully.")
+        logging.info("Cerebras SDK initialized successfully.")
     else:
-        print("CEREBRAS_API_KEY environment variable not set. Running in mock mode.")
+        logging.info("CEREBRAS_API_KEY environment variable not set. Running in mock mode.")
 except ImportError:
-    print("Cerebras SDK not available. Running in mock mode.")
+    logging.info("Cerebras SDK not available. Running in mock mode.")
 
 # Chat history storage functions
 def load_chat_history(session_id):
@@ -392,7 +403,7 @@ def chat():
     kb_name = request.json.get('kb_name', None)  # Optional knowledge base for RAG
     use_rag = request.json.get('use_rag', False)  # Enable/disable RAG
     use_web_search = request.json.get('use_web_search', False)  # Enable/disable web search
-    web_search_query = request.json.get('web_search_query', user_message)  # Custom search query or use message
+    web_search_query = request.json.get('web_search_query', user_message) # Custom search query or use message
 
     # Add user message to conversation history
     conversation_history.append({
@@ -601,20 +612,19 @@ RESPONSE STRUCTURE:
             thinking_content = None
             bot_response = full_content
 
-            # Check if content contains <think> tags
+            # Check if content contains 
             import re
-            think_pattern = r'<think>(.*?)</think>'
+            think_pattern = r'\<think\>(.*?)\</think\>'
             think_match = re.search(think_pattern, full_content, re.DOTALL)
 
             if think_match:
                 # Extract thinking content
                 thinking_content = think_match.group(1).strip()
-                # Remove <think> tags from the response
+                # Remove  tags from the response
                 bot_response = re.sub(think_pattern, '', full_content, flags=re.DOTALL).strip()
-                logging.info(f"✓ Thinking content extracted from <think> tags ({len(thinking_content)} chars)")
-                print(f"\n✓ Thinking content extracted: {len(thinking_content)} chars\n")
+                logging.info(f"✓ Thinking content extracted from tags ({len(thinking_content)} chars)")
             else:
-                logging.info("No <think> tags found in response")
+                logging.info("No  tags found in response")
 
             # Add bot response to conversation history
             conversation_history.append({
@@ -1014,7 +1024,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
 
     # Get configuration from environment variables
-    host = os.environ.get('HOST', '0.0.0.0')
+    host = os.environ.get('HOST', '0.0.0')
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 

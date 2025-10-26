@@ -61,11 +61,41 @@ CEREBRAS_API_KEY=your_actual_api_key_here
 
 ### 5. Run the Application
 
+#### On Windows:
+Double-click on `start_server.bat` or `start_server.ps1` to start the server with SSL fixes applied automatically.
+
+Alternatively, you can run from the command line:
+```cmd
+start_server.bat
+```
+
+Or with PowerShell:
+```powershell
+.\start_server.ps1
+```
+
+#### On macOS/Linux:
 ```bash
 python app.py
 ```
 
 The application will be available at `http://localhost:5000`
+
+### SSL Certificate Issues (Windows)
+
+If you encounter SSL certificate errors (common on Windows systems with PostgreSQL installed), the provided startup scripts automatically apply fixes:
+
+1. They set the correct SSL certificate bundle path
+2. They disable SSL verification for Hugging Face model downloads
+3. They ensure the sentence-transformers models can be downloaded properly
+
+If you still encounter issues, manually set these environment variables:
+```cmd
+set REQUESTS_CA_BUNDLE=venv\Lib\site-packages\certifi\cacert.pem
+set SSL_CERT_FILE=venv\Lib\site-packages\certifi\cacert.pem
+set HF_HUB_DISABLE_SSL=1
+set PYTHONHTTPSVERIFY=0
+```
 
 ### 6. (Optional) Set Up RAG Features
 
