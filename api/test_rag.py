@@ -189,6 +189,8 @@ def test_chat_with_rag(kb_name="test_kb", message="What is Cerebras?"):
         print(f"❌ Error: {e}")
         return False
 
+import time
+
 def main():
     print("""
     ╔═══════════════════════════════════════════════════════════╗
@@ -199,6 +201,8 @@ def main():
     print(f"Testing against: {BASE_URL}")
     print("Make sure the application is running (python app.py)")
     
+    time.sleep(5)
+
     input("\nPress Enter to start tests...")
     
     # Run tests

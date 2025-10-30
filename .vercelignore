@@ -1,0 +1,18 @@
+# Ignore virtual environment
+venv/
+.venv/
+
+# Ignore local chat sessions
+chat_sessions/
+
+# Ignore pycache
+__pycache__/
+*.pyc
+
+# Ignore .env files
+.env*
+!/.env.example
+
+# Ignore local test files and logs
+server.log
+jules-scratch/
