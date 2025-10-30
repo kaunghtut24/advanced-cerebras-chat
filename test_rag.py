@@ -16,7 +16,9 @@ try:
 except:
     pass
 
-BASE_URL = "http://localhost:5000"
+# Get port from environment variable or default to 5000
+PORT = int(os.environ.get('PORT', 5000))
+BASE_URL = f"http://localhost:{PORT}"
 
 def test_rag_status():
     """Test RAG service status"""

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerebras Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Sidebar for Sessions and Controls -->
+        <div id="sidebar">
+            <div class="sidebar-header">
+                <h2>Chat Sessions</h2>
+                <button id="new-chat-button" class="sidebar-button"><i class="fas fa-plus"></i> New Chat</button>
+            </div>
+            <div id="session-list"></div>
+            <div class="sidebar-footer">
+                <button id="import-button" class="sidebar-button"><i class="fas fa-upload"></i> Import</button>
+                <button id="export-button" class="sidebar-button"><i class="fas fa-download"></i> Export</button>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div id="chat-area">
+            <div class="chat-header">
+                <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+                <h1 id="chat-title">Cerebras Chat</h1>
+                <div class="header-icons">
+                    <button id="rag-status-button" class="status-button"><i class="fas fa-book"></i> RAG</button>
+                    <button id="web-search-status-button" class="status-button"><i class="fas fa-globe"></i> Web Search</button>
+                    <button id="settings-button"><i class="fas fa-cog"></i></button>
+                </div>
+            </div>
+
+            <div id="chat-messages"></div>
+
+            <div class="chat-input-container">
+                <textarea id="user-input" placeholder="Type your message here..." rows="1"></textarea>
+                <button id="send-button"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Settings</h2>
+                <!-- Model Selection -->
+                <label for="model-select">Model:</label>
+                <select id="model-select"></select>
+
+                <!-- Temperature -->
+                <label for="temperature-slider">Temperature:</label>
+                <input type="range" id="temperature-slider" min="0" max="1" step="0.1">
+                <span id="temperature-value">0.7</span>
+
+                <!-- Max Tokens -->
+                <label for="max-tokens-slider">Max Tokens:</label>
+                <input type="range" id="max-tokens-slider" min="256" max="8192" step="256">
+                <span id="max-tokens-value">8192</span>
+
+                <!-- System Prompt -->
+                <label for="system-prompt">System Prompt:</label>
+                <textarea id="system-prompt" rows="10"></textarea>
+
+                <div class="modal-buttons">
+                    <button id="save-settings-button">Save</button>
+                    <button id="reset-settings-button">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

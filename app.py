@@ -2,7 +2,7 @@ import os
 import json
 import signal
 import sys
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
@@ -46,17 +46,14 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# Adjust the static folder path for Vercel deployment
-static_folder_path = os.path.join(os.path.dirname(__file__), '..', 'static')
-app = Flask(__name__, static_folder=static_folder_path)
-
+app = Flask(__name__)
 
 # ============================================================================
 # Directory Configuration
 # ============================================================================
 
-# Chat history storage directory (use /tmp for serverless environments)
-CHAT_HISTORY_DIR = '/tmp/chat_sessions'
+# Chat history storage directory
+CHAT_HISTORY_DIR = 'chat_sessions'
 
 # Create chat history directory if it doesn't exist
 if not os.path.exists(CHAT_HISTORY_DIR):
@@ -67,15 +64,24 @@ if not os.path.exists(CHAT_HISTORY_DIR):
 app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))
 
 # Configure CORS with more specific settings
-allowed_origins = os.environ.get('ALLOWED_ORIGINS')
-if allowed_origins:
+allowed_origins = os.environ.get('ALLOWED_ORIGINS', '*')
+if allowed_origins != '*' and allowed_origins:
     origins_list = [origin.strip() for origin in allowed_origins.split(',')]
-    CORS(app, resources={r"/api/*": {"origins": origins_list}})
-    logging.info(f"CORS enabled for the following origins: {', '.join(origins_list)}")
+    CORS(app, resources={
+        r"/*": {
+            "origins": origins_list,
+            "methods": ["GET", "POST", "DELETE"],
+            "allow_headers": ["Content-Type"]
+        }
+    })
 else:
-    # Allow all origins if ALLOWED_ORIGINS is not set
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
-    logging.warning("CORS is configured to allow all origins. For production, set the ALLOWED_ORIGINS environment variable.")
+    CORS(app, resources={
+        r"/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "DELETE"],
+            "allow_headers": ["Content-Type"]
+        }
+    })
 
 # Configure rate limiting
 default_limits_str = os.environ.get('RATE_LIMIT_DEFAULT', '200 per day, 50 per hour')
@@ -350,11 +356,7 @@ def get_models():
 
 @app.route('/')
 def index():
-    return send_from_directory(app.static_folder, 'index.html')
-
-@app.route('/<path:path>')
-def serve_static(path):
-    return send_from_directory(app.static_folder, path)
+    return render_template('index.html')
 
 @app.route('/settings', methods=['GET'])
 def get_settings():
@@ -988,11 +990,57 @@ def list_files():
     files = file_handler.list_files(kb_name)
     return jsonify(files)
 
+def get_ip_addresses():
+    """Get all IP addresses of the machine, including Tailscale"""
+    import socket
+    addresses = []
+    try:
+        # Get all network interfaces
+        interfaces = socket.getaddrinfo(socket.gethostname(), None)
+
+        # Filter and format addresses
+        for interface in interfaces:
+            addr = interface[4][0]
+            # Only include IPv4 addresses and exclude localhost
+            if '.' in addr and addr != '127.0.0.1':
+                addresses.append(addr)
+
+        # Remove duplicates and sort
+        addresses = sorted(list(set(addresses)))
+    except Exception as e:
+        print(f"Error getting IP addresses: {e}")
+        addresses = ['0.0.0.0']
+
+    return addresses
+
+def signal_handler(sig, frame):
+    """Handle Ctrl+C gracefully"""
+    print("\n\n🛑 Shutting down Cerebras Chat Interface...")
+    print("✅ Server stopped successfully")
+    sys.exit(0)
+
 if __name__ == '__main__':
+    # Register signal handler for graceful shutdown
+    signal.signal(signal.SIGINT, signal_handler)
+
     # Get configuration from environment variables
     host = os.environ.get('HOST', '0.0.0.0')
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
+    # Get all available IP addresses
+    ip_addresses = get_ip_addresses()
+
+    print("\nCerebras Chat Interface is now available at:")
+    print("----------------------------------------")
+    for ip in ip_addresses:
+        print(f"http://{ip}:{port}")
+    print("----------------------------------------")
+    print("Press Ctrl+C to stop the server\n")
+
     # Run the Flask application
-    app.run(debug=debug, host=host, port=port)
+    try:
+        app.run(debug=debug, host=host, port=port, threaded=True)
+    except KeyboardInterrupt:
+        print("\n\n🛑 Shutting down Cerebras Chat Interface...")
+        print("✅ Server stopped successfully")

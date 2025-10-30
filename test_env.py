@@ -73,7 +73,7 @@ def main():
     # Test if we can import the main app
     try:
         print("\n🧪 Testing application import...")
-        import index as app
+        import app
         print("✅ Application imports successfully")
         
         # Check if Cerebras client is available
