@@ -97,10 +97,10 @@ limiter = Limiter(
 CEREBRAS_MODELS = {
     "production": [
         {
-            "name": "Llama 4 Scout",
-            "id": "llama-4-scout-17b-16e-instruct",
-            "parameters": "109 billion",
-            "speed": "~2600"
+            "name": "Llama 3.3 70B",
+            "id": "llama-3.3-70b",
+            "parameters": "70 billion",
+            "speed": "~2100"
         },
         {
             "name": "Llama 3.1 8B",
@@ -239,7 +239,7 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
 
 # Default settings
 DEFAULT_SETTINGS = {
-    "model": "llama-4-scout-17b-16e-instruct",
+    "model": "llama-3.3-70b",  # Updated from deprecated llama-4-scout-17b-16e-instruct
     "system_prompt": DEFAULT_SYSTEM_PROMPT,
     "temperature": 0.7,
     "max_tokens": 8192  # Increased from 1000 to allow longer responses
