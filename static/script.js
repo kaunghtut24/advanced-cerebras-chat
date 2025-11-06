@@ -1455,4 +1455,280 @@ Remember: Your goal is to provide the MOST HELPFUL, ACCURATE, and COMPREHENSIVE 
 
     // Load settings when page loads
     loadSettings();
+
+    // ============================================================================
+    // CODE INTERPRETER
+    // ============================================================================
+
+    const codeModal = document.getElementById('code-modal');
+    const closeCodeModal = document.getElementById('close-code-modal');
+    const quickCodeToggle = document.getElementById('quick-code-toggle');
+    const codeEditor = document.getElementById('code-editor');
+    const runCodeButton = document.getElementById('run-code-button');
+    const clearOutputButton = document.getElementById('clear-output-button');
+    const codeOutput = document.getElementById('code-output');
+
+    // Open code interpreter modal
+    if (quickCodeToggle) {
+        quickCodeToggle.addEventListener('click', () => {
+            codeModal.style.display = 'block';
+        });
+    }
+
+    // Close code interpreter modal
+    if (closeCodeModal) {
+        closeCodeModal.addEventListener('click', () => {
+            codeModal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === codeModal) {
+            codeModal.style.display = 'none';
+        }
+    });
+
+    // Run code
+    if (runCodeButton) {
+        runCodeButton.addEventListener('click', async () => {
+            const code = codeEditor.value.trim();
+            if (!code) {
+                alert('Please enter some code to execute');
+                return;
+            }
+
+            // Clear previous output
+            codeOutput.innerHTML = '<div class="code-output-info">Executing code...</div>';
+            runCodeButton.disabled = true;
+            runCodeButton.textContent = '⏳ Running...';
+
+            try {
+                const response = await fetch('/code/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code }),
+                });
+
+                const result = await response.json();
+
+                // Clear output
+                codeOutput.innerHTML = '';
+
+                // Display execution time
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'code-execution-time';
+                timeDiv.textContent = `Execution time: ${result.execution_time.toFixed(3)}s`;
+                codeOutput.appendChild(timeDiv);
+
+                // Display output
+                if (result.output) {
+                    const outputDiv = document.createElement('div');
+                    outputDiv.className = 'code-output-result';
+                    outputDiv.innerHTML = `<strong>Output:</strong><br>${escapeHtml(result.output)}`;
+                    codeOutput.appendChild(outputDiv);
+                }
+
+                // Display result
+                if (result.result) {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'code-output-result';
+                    resultDiv.innerHTML = `<strong>Result:</strong><br>${escapeHtml(result.result)}`;
+                    codeOutput.appendChild(resultDiv);
+                }
+
+                // Display plots
+                if (result.plots && result.plots.length > 0) {
+                    result.plots.forEach((plot, index) => {
+                        const plotDiv = document.createElement('div');
+                        plotDiv.className = 'code-output-plot';
+                        plotDiv.innerHTML = `<strong>Plot ${index + 1}:</strong><br><img src="data:image/png;base64,${plot}" alt="Plot ${index + 1}">`;
+                        codeOutput.appendChild(plotDiv);
+                    });
+                }
+
+                // Display error
+                if (result.error) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'code-output-error';
+                    errorDiv.innerHTML = `<strong>Error:</strong><br>${escapeHtml(result.error)}`;
+                    codeOutput.appendChild(errorDiv);
+                }
+
+                // Display success message if no output
+                if (!result.output && !result.result && !result.error && result.plots.length === 0) {
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'code-output-success';
+                    successDiv.textContent = '✓ Code executed successfully (no output)';
+                    codeOutput.appendChild(successDiv);
+                }
+
+            } catch (error) {
+                console.error('Error executing code:', error);
+                codeOutput.innerHTML = `<div class="code-output-error"><strong>Error:</strong><br>${escapeHtml(error.message)}</div>`;
+            } finally {
+                runCodeButton.disabled = false;
+                runCodeButton.textContent = '▶ Run Code';
+            }
+        });
+    }
+
+    // Clear output
+    if (clearOutputButton) {
+        clearOutputButton.addEventListener('click', () => {
+            codeOutput.innerHTML = '';
+        });
+    }
+
+    // ============================================================================
+    // INTERACTIVE CANVAS
+    // ============================================================================
+
+    const canvasModal = document.getElementById('canvas-modal');
+    const closeCanvasModal = document.getElementById('close-canvas-modal');
+    const quickCanvasToggle = document.getElementById('quick-canvas-toggle');
+    const htmlEditor = document.getElementById('html-editor');
+    const cssEditor = document.getElementById('css-editor');
+    const jsEditor = document.getElementById('js-editor');
+    const canvasTabs = document.querySelectorAll('.canvas-tab');
+    const canvasEditors = document.querySelectorAll('.canvas-editor');
+    const canvasTemplateSelect = document.getElementById('canvas-template-select');
+    const updatePreviewButton = document.getElementById('update-preview-button');
+    const fullscreenPreviewButton = document.getElementById('fullscreen-preview-button');
+    const canvasPreview = document.getElementById('canvas-preview');
+
+    // Open canvas modal
+    if (quickCanvasToggle) {
+        quickCanvasToggle.addEventListener('click', () => {
+            canvasModal.style.display = 'block';
+            updateCanvasPreview();
+        });
+    }
+
+    // Close canvas modal
+    if (closeCanvasModal) {
+        closeCanvasModal.addEventListener('click', () => {
+            canvasModal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === canvasModal) {
+            canvasModal.style.display = 'none';
+        }
+    });
+
+    // Canvas tab switching
+    canvasTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+
+            // Update active tab
+            canvasTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Update active editor
+            canvasEditors.forEach(editor => {
+                editor.classList.remove('active');
+                if (editor.id === `${tabName}-editor`) {
+                    editor.classList.add('active');
+                }
+            });
+        });
+    });
+
+    // Load template
+    if (canvasTemplateSelect) {
+        canvasTemplateSelect.addEventListener('change', async (e) => {
+            const templateName = e.target.value;
+            if (!templateName) return;
+
+            try {
+                const response = await fetch(`/canvas/templates/${templateName}`);
+                const data = await response.json();
+
+                if (data.template) {
+                    // Parse the template to extract HTML, CSS, and JS
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.template, 'text/html');
+
+                    // Extract HTML (body content)
+                    const bodyContent = doc.body.innerHTML;
+                    htmlEditor.value = bodyContent;
+
+                    // Extract CSS (from style tags)
+                    const styles = Array.from(doc.querySelectorAll('style'))
+                        .map(style => style.textContent)
+                        .join('\n\n');
+                    cssEditor.value = styles;
+
+                    // Extract JS (from script tags)
+                    const scripts = Array.from(doc.querySelectorAll('script'))
+                        .map(script => script.textContent)
+                        .join('\n\n');
+                    jsEditor.value = scripts;
+
+                    // Update preview
+                    updateCanvasPreview();
+                }
+            } catch (error) {
+                console.error('Error loading template:', error);
+                alert('Failed to load template');
+            }
+
+            // Reset select
+            e.target.value = '';
+        });
+    }
+
+    // Update preview
+    function updateCanvasPreview() {
+        const html = htmlEditor.value;
+        const css = cssEditor.value;
+        const js = jsEditor.value;
+
+        const fullHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Preview</title>
+    <style>
+        ${css}
+    </style>
+</head>
+<body>
+    ${html}
+    <script>
+        ${js}
+    </script>
+</body>
+</html>`;
+
+        // Update iframe
+        const blob = new Blob([fullHtml], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        canvasPreview.src = url;
+    }
+
+    if (updatePreviewButton) {
+        updatePreviewButton.addEventListener('click', updateCanvasPreview);
+    }
+
+    // Fullscreen preview
+    if (fullscreenPreviewButton) {
+        fullscreenPreviewButton.addEventListener('click', () => {
+            if (canvasPreview.requestFullscreen) {
+                canvasPreview.requestFullscreen();
+            } else if (canvasPreview.webkitRequestFullscreen) {
+                canvasPreview.webkitRequestFullscreen();
+            } else if (canvasPreview.msRequestFullscreen) {
+                canvasPreview.msRequestFullscreen();
+            }
+        });
+    }
 });

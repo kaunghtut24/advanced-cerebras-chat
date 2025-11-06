@@ -125,6 +125,18 @@
                         <span class="toggle-status" id="web-search-status-indicator">OFF</span>
                     </button>
                 </div>
+                <div class="toggle-group">
+                    <button class="quick-toggle-btn" id="quick-code-toggle" title="Open Code Interpreter">
+                        <span class="toggle-icon">💻</span>
+                        <span class="toggle-label">Code</span>
+                    </button>
+                </div>
+                <div class="toggle-group">
+                    <button class="quick-toggle-btn" id="quick-canvas-toggle" title="Open Interactive Canvas">
+                        <span class="toggle-icon">🎨</span>
+                        <span class="toggle-label">Canvas</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Chat Input -->
@@ -159,6 +171,87 @@
             <div class="kb-section">
                 <h3>Existing Knowledge Bases</h3>
                 <div id="kb-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Interpreter Modal -->
+    <div class="modal" id="code-modal">
+        <div class="modal-content code-modal-content">
+            <div class="modal-header">
+                <h2>💻 Code Interpreter</h2>
+                <span class="close-modal" id="close-code-modal">&times;</span>
+            </div>
+            <div class="code-editor-container">
+                <div class="code-editor-header">
+                    <span>Python Code Editor</span>
+                    <button id="run-code-button" class="primary-button">▶ Run Code</button>
+                </div>
+                <textarea id="code-editor" placeholder="# Write your Python code here
+# Available libraries: numpy, pandas, matplotlib, math, random, datetime, etc.
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Example: Create a simple plot
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+plt.figure(figsize=(10, 6))
+plt.plot(x, y)
+plt.title('Sine Wave')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+plt.grid(True)
+plt.show()
+
+print('Plot created successfully!')"></textarea>
+            </div>
+            <div class="code-output-container">
+                <div class="code-output-header">
+                    <span>Output</span>
+                    <button id="clear-output-button" class="secondary-button">Clear</button>
+                </div>
+                <div id="code-output" class="code-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Canvas Modal -->
+    <div class="modal" id="canvas-modal">
+        <div class="modal-content canvas-modal-content">
+            <div class="modal-header">
+                <h2>🎨 Interactive Canvas</h2>
+                <span class="close-modal" id="close-canvas-modal">&times;</span>
+            </div>
+            <div class="canvas-container">
+                <div class="canvas-editor-panel">
+                    <div class="canvas-tabs">
+                        <button class="canvas-tab active" data-tab="html">HTML</button>
+                        <button class="canvas-tab" data-tab="css">CSS</button>
+                        <button class="canvas-tab" data-tab="js">JavaScript</button>
+                    </div>
+                    <div class="canvas-toolbar">
+                        <select id="canvas-template-select">
+                            <option value="">Load Template...</option>
+                            <option value="basic">Basic</option>
+                            <option value="chart">Chart</option>
+                            <option value="form">Form</option>
+                            <option value="animation">Animation</option>
+                        </select>
+                        <button id="update-preview-button" class="primary-button">🔄 Update Preview</button>
+                    </div>
+                    <textarea id="html-editor" class="canvas-editor active" placeholder="<!-- HTML content -->"></textarea>
+                    <textarea id="css-editor" class="canvas-editor" placeholder="/* CSS styles */"></textarea>
+                    <textarea id="js-editor" class="canvas-editor" placeholder="// JavaScript code"></textarea>
+                </div>
+                <div class="canvas-preview-panel">
+                    <div class="canvas-preview-header">
+                        <span>Preview</span>
+                        <button id="fullscreen-preview-button" class="secondary-button">⛶ Fullscreen</button>
+                    </div>
+                    <iframe id="canvas-preview" sandbox="allow-scripts allow-same-origin"></iframe>
+                </div>
             </div>
         </div>
     </div>

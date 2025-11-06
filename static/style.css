@@ -1813,3 +1813,271 @@
 #manage-kb-button:hover {
     background-color: #218838;
 }
+
+/* ============================================================================
+   CODE INTERPRETER STYLES
+   ============================================================================ */
+
+.code-modal-content {
+    width: 95%;
+    max-width: 1400px;
+    height: 90vh;
+    max-height: 900px;
+    display: flex;
+    flex-direction: column;
+}
+
+.code-editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.code-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--secondary-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.code-editor-header span {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+#code-editor {
+    flex: 1;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    padding: 15px;
+    border: none;
+    resize: none;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+#code-editor:focus {
+    outline: none;
+}
+
+.code-output-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.code-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--secondary-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.code-output-header span {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.code-output {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: var(--bg-color);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.code-output-success {
+    color: #28a745;
+}
+
+.code-output-error {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.code-output-result {
+    color: var(--text-color);
+    background-color: var(--secondary-bg);
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.code-output-plot {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.code-output-plot img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.code-execution-time {
+    color: var(--muted-text);
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+/* ============================================================================
+   INTERACTIVE CANVAS STYLES
+   ============================================================================ */
+
+.canvas-modal-content {
+    width: 95%;
+    max-width: 1600px;
+    height: 90vh;
+    max-height: 900px;
+    display: flex;
+    flex-direction: column;
+}
+
+.canvas-container {
+    flex: 1;
+    display: flex;
+    gap: 0;
+    overflow: hidden;
+}
+
+.canvas-editor-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid var(--border-color);
+    background-color: var(--bg-color);
+}
+
+.canvas-tabs {
+    display: flex;
+    background-color: var(--secondary-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.canvas-tab {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    background-color: transparent;
+    color: var(--muted-text);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+}
+
+.canvas-tab:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-color);
+}
+
+.canvas-tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    background-color: var(--bg-color);
+}
+
+.canvas-toolbar {
+    display: flex;
+    gap: 10px;
+    padding: 10px 15px;
+    background-color: var(--secondary-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+#canvas-template-select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.canvas-editor {
+    display: none;
+    flex: 1;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    padding: 15px;
+    border: none;
+    resize: none;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.canvas-editor.active {
+    display: block;
+}
+
+.canvas-editor:focus {
+    outline: none;
+}
+
+.canvas-preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-color);
+}
+
+.canvas-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--secondary-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.canvas-preview-header span {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+#canvas-preview {
+    flex: 1;
+    border: none;
+    background-color: white;
+}
+
+/* Mobile responsiveness for code interpreter and canvas */
+@media (max-width: 768px) {
+    .code-modal-content,
+    .canvas-modal-content {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .canvas-container {
+        flex-direction: column;
+    }
+
+    .canvas-editor-panel {
+        border-right: none;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .code-editor-container,
+    .code-output-container {
+        min-height: 200px;
+    }
+}

@@ -1,0 +1,1 @@
+The Cerebras Chat Interface is an advanced AI tool. Its primary feature is the Retrieval-Augmented Generation (RAG) system, which allows the language model to access external knowledge bases. The RAG system is powered by the Qdrant vector database for efficient similarity searches. This test document confirms that the file upload and chunking mechanism is working correctly.

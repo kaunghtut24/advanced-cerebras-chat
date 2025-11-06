@@ -39,6 +39,24 @@ except ImportError as e:
     WEB_SEARCH_AVAILABLE = False
     logging.error(f"Web search not available: {e}")
 
+# Import Code Executor service
+try:
+    from code_executor import execute_code
+    CODE_EXECUTOR_AVAILABLE = True
+    logging.info("Code executor initialized: Available")
+except ImportError as e:
+    CODE_EXECUTOR_AVAILABLE = False
+    logging.error(f"Code executor not available: {e}")
+
+# Import Canvas service
+try:
+    from canvas_service import canvas_service
+    CANVAS_AVAILABLE = True
+    logging.info("Canvas service initialized: Available")
+except ImportError as e:
+    CANVAS_AVAILABLE = False
+    logging.error(f"Canvas service not available: {e}")
+
 # Configure logging
 log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
 logging.basicConfig(
@@ -1018,6 +1036,93 @@ def signal_handler(sig, frame):
     print("\n\n🛑 Shutting down Cerebras Chat Interface...")
     print("✅ Server stopped successfully")
     sys.exit(0)
+
+# ============================================================================
+# CODE INTERPRETER ENDPOINTS
+# ============================================================================
+
+@app.route('/code/execute', methods=['POST'])
+def execute_code_endpoint():
+    """Execute Python code and return results"""
+    if not CODE_EXECUTOR_AVAILABLE:
+        return jsonify({"error": "Code executor not available"}), 503
+
+    data = request.json
+    if not data or 'code' not in data:
+        return jsonify({"error": "Code required"}), 400
+
+    code = data['code']
+
+    try:
+        result = execute_code(code)
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"Code execution error: {str(e)}")
+        return jsonify({
+            "success": False,
+            "output": "",
+            "error": str(e),
+            "result": None,
+            "plots": [],
+            "execution_time": 0
+        }), 500
+
+# ============================================================================
+# INTERACTIVE CANVAS ENDPOINTS
+# ============================================================================
+
+@app.route('/canvas/preview', methods=['POST'])
+def create_canvas_preview():
+    """Create a preview from HTML, CSS, and JS"""
+    if not CANVAS_AVAILABLE:
+        return jsonify({"error": "Canvas service not available"}), 503
+
+    data = request.json
+    if not data:
+        return jsonify({"error": "Request data required"}), 400
+
+    html = data.get('html', '')
+    css = data.get('css', '')
+    js = data.get('js', '')
+
+    try:
+        result = canvas_service.create_preview(html, css, js)
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"Canvas preview error: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "preview_html": None
+        }), 500
+
+@app.route('/canvas/templates', methods=['GET'])
+def get_canvas_templates():
+    """Get list of available canvas templates"""
+    if not CANVAS_AVAILABLE:
+        return jsonify({"error": "Canvas service not available"}), 503
+
+    try:
+        templates = canvas_service.list_templates()
+        return jsonify({"templates": templates})
+    except Exception as e:
+        logging.error(f"Error getting templates: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/canvas/templates/<template_name>', methods=['GET'])
+def get_canvas_template(template_name):
+    """Get a specific canvas template"""
+    if not CANVAS_AVAILABLE:
+        return jsonify({"error": "Canvas service not available"}), 503
+
+    try:
+        template = canvas_service.get_template(template_name)
+        if template is None:
+            return jsonify({"error": "Template not found"}), 404
+        return jsonify({"template": template})
+    except Exception as e:
+        logging.error(f"Error getting template: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     # Register signal handler for graceful shutdown
