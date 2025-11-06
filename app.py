@@ -374,6 +374,7 @@ def get_models():
 
 @app.route('/')
 def index():
+    # Serve the modern UI from templates directory
     return render_template('index.html')
 
 @app.route('/settings', methods=['GET'])
@@ -1123,6 +1124,7 @@ def get_canvas_template(template_name):
     except Exception as e:
         logging.error(f"Error getting template: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     # Register signal handler for graceful shutdown
